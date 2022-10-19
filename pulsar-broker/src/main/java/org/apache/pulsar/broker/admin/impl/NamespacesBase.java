@@ -56,6 +56,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.pulsar.broker.PulsarServerException;
 import org.apache.pulsar.broker.admin.AdminResource;
 import org.apache.pulsar.broker.authorization.AuthorizationService;
+import org.apache.pulsar.broker.loadbalance.LeaderBroker;
 import org.apache.pulsar.broker.service.BrokerServiceException.SubscriptionBusyException;
 import org.apache.pulsar.broker.service.Subscription;
 import org.apache.pulsar.broker.service.Topic;
@@ -852,7 +853,35 @@ public abstract class NamespacesBase extends AdminResource {
         }
     }
 
-    public CompletableFuture<Void> internalUnloadNamespaceBundleAsync(String bundleRange, boolean authoritative) {
+    public CompletableFuture<Void> setNamespaceBundleAffinity (String bundleRange, String brokerUrl) {
+        log.info("^^^^^^^^ bundleRange - " + bundleRange + " ^^^^^^^^^^^^ brokerUrl - " + brokerUrl);
+        if (!this.isLeaderBroker()) {
+            LeaderBroker leaderBroker = pulsar().getLeaderElectionService().getCurrentLeader().get();
+            String leaderBrokerUrl = leaderBroker.getServiceUrl();
+            try {
+                URL redirectUrl = new URL(leaderBrokerUrl);
+                log.info("~~~~~~~~ leaderBroker Url ~~~~~~~~~~ " + leaderBrokerUrl);
+                
+                String path = "/admin/namespaces/" + bundleRange + "/" + brokerUrl;
+                URI uri = UriBuilder.fromPath(path).host(redirectUrl.getHost())
+                        .port(redirectUrl.getPort()).replaceQueryParam("authoritative",
+                                false).build();
+
+                log.info("Making call to leader broker to set bundle affinity {}", uri);
+                // Redirect
+                log.debug("Making call to leader broker to set bundle affinity {}", uri);
+                
+                Response.seeOther(uri).build();
+                
+            } catch (MalformedURLException e) {
+                log.info("((((((( Malformed url ))))))))))");
+                e.printStackTrace();
+            }
+        }
+        pulsar().getLoadManager().get().setBundleBrokerAffinity(bundleRange, brokerUrl);
+    }
+
+    public CompletableFuture<Void> internalUnloadNamespaceBundleAsync(String bundleRange, boolean authoritative, String brokerUrl) {
         return validateSuperUserAccessAsync()
                 .thenAccept(__ -> {
                     checkNotNull(bundleRange, "BundleRange should not be null");
@@ -896,10 +925,14 @@ public abstract class NamespacesBase extends AdminResource {
                                         namespaceName, bundleRange);
                                 return CompletableFuture.completedFuture(null);
                             }
+                            log.info(">>>>>>> broker in use - >>>> " + pulsar().getBrokerServiceUrl());
+                            
+                            setNamespaceBundleAffinity(bundleRange, brokerUrl);
                             return validateNamespaceBundleOwnershipAsync(namespaceName, policies.bundles, bundleRange,
                                     authoritative, true)
-                                    .thenCompose(nsBundle ->
-                                            pulsar().getNamespaceService().unloadNamespaceBundle(nsBundle));
+                                    .thenCompose(nsBundle-> {
+                                        return pulsar().getNamespaceService().unloadNamespaceBundle(nsBundle);
+                                    });
                         }));
     }
 

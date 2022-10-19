@@ -27,6 +27,7 @@ import org.apache.pulsar.broker.PulsarService;
 import org.apache.pulsar.broker.ServiceConfiguration;
 import org.apache.pulsar.broker.loadbalance.impl.ModularLoadManagerWrapper;
 import org.apache.pulsar.broker.loadbalance.impl.SimpleLoadManagerImpl;
+import org.apache.pulsar.common.naming.NamespaceBundle;
 import org.apache.pulsar.common.naming.ServiceUnitId;
 import org.apache.pulsar.common.stats.Metrics;
 import org.apache.pulsar.common.util.Reflections;
@@ -56,7 +57,7 @@ public interface LoadManager {
     /**
      * Returns the Least Loaded Resource Unit decided by some algorithm or criteria which is implementation specific.
      */
-    Optional<ResourceUnit> getLeastLoaded(ServiceUnitId su) throws Exception;
+    Optional<ResourceUnit> getLeastLoaded(ServiceUnitId bundle) throws Exception;
 
     /**
      * Generate the load report.
@@ -118,6 +119,10 @@ public interface LoadManager {
     Set<String> getAvailableBrokers() throws Exception;
 
     CompletableFuture<Set<String>> getAvailableBrokersAsync();
+
+    String getBundleBrokerAffinity(String bundle);
+
+    void setBundleBrokerAffinity(String bundle, String broker);
 
     void stop() throws PulsarServerException;
 

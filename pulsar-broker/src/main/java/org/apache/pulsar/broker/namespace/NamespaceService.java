@@ -702,10 +702,11 @@ public class NamespaceService implements AutoCloseable {
      * @return
      * @throws Exception
      */
-    private Optional<Pair<String, String>> getLeastLoadedFromLoadManager(ServiceUnitId serviceUnit) throws Exception {
-        Optional<ResourceUnit> leastLoadedBroker = loadManager.get().getLeastLoaded(serviceUnit);
-        if (!leastLoadedBroker.isPresent()) {
-            LOG.warn("No broker is available for {}", serviceUnit);
+    private Optional<Pair<String, String>> getLeastLoadedFromLoadManager(NamespaceBundle bundle) throws Exception {
+        System.out.println("^^^^^^ loading least loaded in leader - " + pulsar.getBrokerServiceUrl());
+        Optional<ResourceUnit> leastLoadedBroker = loadManager.get().getLeastLoaded(bundle);
+        if (!leastLoadedBroker.isPresent()) { 
+            LOG.warn("No broker is available for {}", bundle);
             return Optional.empty();
         }
 

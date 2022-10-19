@@ -29,6 +29,7 @@ import org.apache.pulsar.broker.PulsarServerException;
 import org.apache.pulsar.broker.PulsarService;
 import org.apache.pulsar.broker.loadbalance.impl.PulsarResourceDescription;
 import org.apache.pulsar.broker.loadbalance.impl.SimpleResourceUnit;
+import org.apache.pulsar.common.naming.NamespaceBundle;
 import org.apache.pulsar.common.naming.ServiceUnitId;
 import org.apache.pulsar.common.stats.Metrics;
 import org.apache.pulsar.metadata.api.MetadataStoreException;
@@ -77,7 +78,7 @@ public class NoopLoadManager implements LoadManager {
     }
 
     @Override
-    public Optional<ResourceUnit> getLeastLoaded(ServiceUnitId su) throws Exception {
+    public Optional<ResourceUnit> getLeastLoaded(ServiceUnitId bundle) throws Exception {
         return Optional.of(localResourceUnit);
     }
 
@@ -142,4 +143,13 @@ public class NoopLoadManager implements LoadManager {
         }
     }
 
+    @Override
+    public String getBundleBrokerAffinity(String bundle) {
+        return null;
+    }
+
+    @Override
+    public void setBundleBrokerAffinity(String bundle, String broker) {
+
+    }
 }

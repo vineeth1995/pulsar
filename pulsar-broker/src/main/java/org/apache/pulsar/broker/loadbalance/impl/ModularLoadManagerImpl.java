@@ -197,6 +197,7 @@ public class ModularLoadManagerImpl implements ModularLoadManager {
 
     private final Lock lock = new ReentrantLock();
     private Set<String> knownBrokers = ConcurrentHashMap.newKeySet();
+    private ConcurrentHashMap<String, String> bundleBrokerAffinityMap; 
 
     /**
      * Initializes fields which do not depend on PulsarService. initialize(PulsarService) should subsequently be called.
@@ -214,7 +215,7 @@ public class ModularLoadManagerImpl implements ModularLoadManager {
         preallocatedBundleToBroker = new ConcurrentHashMap<>();
         scheduler = Executors.newSingleThreadScheduledExecutor(new DefaultThreadFactory("pulsar-modular-load-manager"));
         this.brokerToFailureDomainMap = new HashMap<>();
-
+        this.bundleBrokerAffinityMap = new ConcurrentHashMap<>();
         this.brokerTopicLoadingPredicate = new BrokerTopicLoadingPredicate() {
             @Override
             public boolean isEnablePersistentTopics(String brokerUrl) {
@@ -1212,5 +1213,18 @@ public class ModularLoadManagerImpl implements ModularLoadManager {
         }
 
         return metricsCollection;
+    }
+    
+    @Override
+    public String getBundleBrokerAffinity(String bundle) {
+        return  this.bundleBrokerAffinityMap.get(bundle);
+    }
+    
+    @Override
+    public void setBundleBrokerAffinity(String bundle, String broker) {
+        broker = broker.replace("http://", "");
+        broker = broker.replace("https://", "");
+        this.bundleBrokerAffinityMap.put(bundle, broker);
+        log.info("---------- Map value in setBundleBrokerAffinity --------- " + this.bundleBrokerAffinityMap.get(bundle));
     }
 }

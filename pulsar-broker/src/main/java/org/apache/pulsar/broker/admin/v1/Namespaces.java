@@ -24,6 +24,10 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -44,7 +48,10 @@ import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.UriBuilder;
+
 import org.apache.pulsar.broker.admin.impl.NamespacesBase;
+import org.apache.pulsar.broker.loadbalance.LeaderBroker;
 import org.apache.pulsar.broker.web.RestException;
 import org.apache.pulsar.client.admin.PulsarAdminException;
 import org.apache.pulsar.common.api.proto.CommandGetTopicsOfNamespace.Mode;
@@ -885,9 +892,11 @@ public class Namespaces extends NamespacesBase {
     public void unloadNamespaceBundle(@Suspended final AsyncResponse asyncResponse,
             @PathParam("property") String property, @PathParam("cluster") String cluster,
             @PathParam("namespace") String namespace, @PathParam("bundle") String bundleRange,
-            @QueryParam("authoritative") @DefaultValue("false") boolean authoritative) {
+            @QueryParam("authoritative") @DefaultValue("false") boolean authoritative, 
+                                      @QueryParam("brokerUrl") String brokerUrl) {
+        log.info(" ********** The request reached the REST API unloadNamespaceBundle ***********");
         validateNamespaceName(property, cluster, namespace);
-        internalUnloadNamespaceBundleAsync(bundleRange, authoritative)
+        internalUnloadNamespaceBundleAsync(bundleRange, authoritative, brokerUrl)
                 .thenAccept(__ -> {
                     log.info("[{}] Successfully unloaded namespace bundle {}", clientAppId(), bundleRange);
                     asyncResponse.resume(Response.noContent().build());
@@ -1707,5 +1716,38 @@ public class Namespaces extends NamespacesBase {
         internalSetSchemaAutoUpdateCompatibilityStrategy(strategy);
     }
 
+    @PUT
+    @Path("/{bundleRange}/{broker}/setBundleBrokerAffinity")
+    @ApiOperation(hidden = true, value = "Set bundle Affinity")
+    @ApiResponses(value = {
+            @ApiResponse(code = 307, message = "Current broker is not the leader"),
+            @ApiResponse(code = 403, message = "Don't have admin permission") })
+    public void setBundleBrokerAffinity(@Suspended final AsyncResponse asyncResponse,
+                                      @PathParam("bundleRange") String bundleRange, @PathParam("broker") String broker) {
+        System.out.println(" ********** The request reached the REST API setBundleBrokerAffinity ***********");
+        System.out.println("^^^^^^^^ bundleRange - " + bundleRange + " ^^^^^^^^^^^^ brokerUrl - " + broker);
+
+        if (!this.isLeaderBroker()) {
+            LeaderBroker leaderBroker = pulsar().getLeaderElectionService().getCurrentLeader().get();
+            String leaderBrokerUrl = leaderBroker.getServiceUrl();
+            try {
+                URL redirectUrl = new URL(leaderBrokerUrl);
+                log.info("~~~~~~~~ leaderBroker Url ~~~~~~~~~~ " + leaderBrokerUrl);
+
+                URI redirect = UriBuilder.fromUri(uri.getRequestUri()).host(redirectUrl.getHost())
+                        .port(redirectUrl.getPort()).replaceQueryParam("authoritative",
+                                false).build();
+
+                // Redirect
+                log.debug("Redirecting the rest call to {}", redirect);
+                throw new WebApplicationException(Response.temporaryRedirect(redirect).build());
+
+            } catch (MalformedURLException e) {
+                log.info("((((((( Malformed url ))))))))))");
+                e.printStackTrace();
+            }
+        }
+        pulsar().getLoadManager().get().setBundleBrokerAffinity(bundleRange, broker);
+    }
     private static final Logger log = LoggerFactory.getLogger(Namespaces.class);
 }

@@ -55,6 +55,7 @@ import org.apache.pulsar.broker.loadbalance.LoadManager;
 import org.apache.pulsar.broker.loadbalance.PlacementStrategy;
 import org.apache.pulsar.broker.loadbalance.ResourceUnit;
 import org.apache.pulsar.broker.loadbalance.impl.LoadManagerShared.BrokerTopicLoadingPredicate;
+import org.apache.pulsar.common.naming.NamespaceBundle;
 import org.apache.pulsar.common.naming.NamespaceName;
 import org.apache.pulsar.common.naming.ServiceUnitId;
 import org.apache.pulsar.common.policies.data.ResourceQuota;
@@ -903,8 +904,8 @@ public class SimpleLoadManagerImpl implements LoadManager, Consumer<Notification
         }
     }
 
-    public Optional<ResourceUnit> getLeastLoaded(ServiceUnitId serviceUnit) throws Exception {
-        return Optional.ofNullable(getLeastLoadedBroker(serviceUnit, getAvailableBrokers(serviceUnit)));
+    public Optional<ResourceUnit> getLeastLoaded(ServiceUnitId bundle) throws Exception {
+        return Optional.ofNullable(getLeastLoadedBroker(bundle, getAvailableBrokers(bundle)));
     }
 
     public Multimap<Long, ResourceUnit> getResourceAvailabilityFor(ServiceUnitId serviceUnitId) throws Exception {
@@ -1441,6 +1442,16 @@ public class SimpleLoadManagerImpl implements LoadManager, Consumer<Notification
             }
             this.setLoadReportForceUpdateFlag();
         }
+    }
+
+    @Override
+    public String getBundleBrokerAffinity(String bundle) {
+        return null;
+    }
+
+    @Override
+    public void setBundleBrokerAffinity(String bundle, String broker) {
+        
     }
 
     @Override
