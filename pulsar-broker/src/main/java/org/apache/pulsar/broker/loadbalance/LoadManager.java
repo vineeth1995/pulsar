@@ -118,6 +118,10 @@ public interface LoadManager {
     Set<String> getAvailableBrokers() throws Exception;
 
     CompletableFuture<Set<String>> getAvailableBrokersAsync();
+    
+    void setNamespaceBundleAffinity(String bundle, String broker);
+
+    String removeNamespaceBundleAffinity(String bundle);
 
     void stop() throws PulsarServerException;
 

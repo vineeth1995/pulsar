@@ -18,6 +18,7 @@
  */
 package org.apache.pulsar.broker.loadbalance;
 
+import static java.lang.Thread.sleep;
 import static org.apache.pulsar.broker.loadbalance.impl.ModularLoadManagerImpl.TIME_AVERAGE_BROKER_ZPATH;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.spy;
@@ -40,6 +41,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -85,6 +87,7 @@ import org.apache.pulsar.policies.data.loadbalancer.TimeAverageMessageData;
 import org.apache.pulsar.zookeeper.LocalBookkeeperEnsemble;
 import org.awaitility.Awaitility;
 import org.mockito.Mockito;
+import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -188,7 +191,7 @@ public class ModularLoadManagerImplTest {
         primaryLoadManager = (ModularLoadManagerImpl) getField(pulsar1.getLoadManager().get(), "loadManager");
         secondaryLoadManager = (ModularLoadManagerImpl) getField(pulsar2.getLoadManager().get(), "loadManager");
         nsFactory = new NamespaceBundleFactory(pulsar1, Hashing.crc32());
-        Thread.sleep(100);
+        sleep(100);
     }
 
     @AfterMethod(alwaysRun = true)
@@ -284,6 +287,62 @@ public class ModularLoadManagerImplTest {
         }
     }
 
+
+    
+    @Test
+    public void testBrokerAffinity() throws Exception {
+        // Start broker 3
+        ServiceConfiguration config = new ServiceConfiguration();
+        config.setLoadManagerClassName(ModularLoadManagerImpl.class.getName());
+        config.setLoadBalancerLoadSheddingStrategy("org.apache.pulsar.broker.loadbalance.impl.OverloadShedder");
+        config.setClusterName("use");
+        config.setWebServicePort(Optional.of(0));
+        config.setMetadataStoreUrl("zk:127.0.0.1:" + bkEnsemble.getZookeeperPort());
+        config.setAdvertisedAddress("localhost");
+        config.setBrokerShutdownTimeoutMs(0L);
+        config.setLoadBalancerOverrideBrokerNicSpeedGbps(Optional.of(1.0d));
+        config.setBrokerServicePort(Optional.of(0));
+        config.setBrokerServicePortTls(Optional.of(0));
+        config.setWebServicePortTls(Optional.of(0));
+        PulsarService pulsar3 = new PulsarService(config);
+        pulsar3.start();
+        
+        final String tenant = "test";
+        final String cluster = "test";
+        String namespace = tenant + "/" + cluster + "/" + "test";
+        String topic = "persistent://" + namespace + "/my-topic1";
+        admin1.clusters().createCluster(cluster, ClusterData.builder().serviceUrl("http://" + pulsar1.getAdvertisedAddress()).build());
+        admin1.tenants().createTenant(tenant,
+                new TenantInfoImpl(Sets.newHashSet("appid1", "appid2"), Sets.newHashSet(cluster)));
+        admin1.namespaces().createNamespace(namespace, 16);
+        
+        String topicLookup = admin1.lookups().lookupTopic(topic);
+        String bundleRange = admin1.lookups().getBundleRange(topic);
+        
+        String brokerServiceUrl = pulsar1.getBrokerServiceUrl();
+        String brokerUrl = pulsar1.getSafeWebServiceAddress();
+        Random rand=new Random();
+        
+        if (topicLookup.equals(brokerServiceUrl)) {
+            int x = rand.nextInt(2);
+            if (x == 0) {
+                brokerUrl = pulsar2.getSafeWebServiceAddress();
+                brokerServiceUrl = pulsar2.getBrokerServiceUrl();
+            }
+            else {
+                brokerUrl = pulsar3.getSafeWebServiceAddress();
+                brokerServiceUrl = pulsar3.getBrokerServiceUrl();
+            }
+        }
+        
+        admin1.namespaces().unloadNamespaceBundle(namespace, bundleRange, brokerUrl);
+        
+        String topicLookupAfterUnload = admin1.lookups().lookupTopic(topic);
+        
+        Assert.assertEquals(brokerServiceUrl, topicLookupAfterUnload);
+        pulsar3.close();
+    }
+
     /**
      * It verifies that once broker owns max-number of topics: load-manager doesn't allocates new bundles to that broker
      * unless all the brokers are in same state.
@@ -345,7 +404,7 @@ public class ModularLoadManagerImplTest {
         // Need to update all the bundle data for the shredder to see the spy.
         primaryLoadManager.handleDataNotification(new Notification(NotificationType.Created, LoadManager.LOADBALANCE_BROKERS_ROOT + "/broker:8080"));
 
-        Thread.sleep(100);
+        sleep(100);
         localBrokerData.setCpu(new ResourceUsage(80, 100));
         primaryLoadManager.doLoadShedding();
 

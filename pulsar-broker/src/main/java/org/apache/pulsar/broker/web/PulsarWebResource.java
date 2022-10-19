@@ -710,7 +710,7 @@ public abstract class PulsarWebResource {
                                     // Replace the host and port of the current request and redirect
                                     URI redirect = UriBuilder.fromUri(uri.getRequestUri()).host(webUrl.get().getHost())
                                             .port(webUrl.get().getPort()).replaceQueryParam("authoritative",
-                                                    newAuthoritative).build();
+                                                    newAuthoritative).replaceQueryParam("brokerUrl", null).build();
 
                                     log.debug("{} is not a service unit owned", bundle);
                                     // Redirect

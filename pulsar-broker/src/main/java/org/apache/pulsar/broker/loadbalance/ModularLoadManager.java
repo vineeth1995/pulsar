@@ -140,4 +140,10 @@ public interface ModularLoadManager {
      * @return bundle data
      */
     BundleData getBundleDataOrDefault(String bundle);
+
+    String getNamespaceBundleAffinity(String bundle);
+
+    void setNamespaceBundleAffinity(String bundle, String broker);
+
+    String removeNamespaceBundleAffinity(String bundle);
 }
