@@ -22,7 +22,6 @@ import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 import io.netty.util.concurrent.DefaultThreadFactory;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.ConcurrentModificationException;
@@ -1226,7 +1225,6 @@ public class ModularLoadManagerImpl implements ModularLoadManager {
     public void setBundleBrokerAffinity(String bundle, String broker) {
         broker = broker.replaceFirst("http[s]?://", "");
         this.bundleBrokerAffinityMap.put(bundle, broker);
-        log.info("---------- Map value in setBundleBrokerAffinity --------- " + this.bundleBrokerAffinityMap.get(bundle));
     }
 
     @Override

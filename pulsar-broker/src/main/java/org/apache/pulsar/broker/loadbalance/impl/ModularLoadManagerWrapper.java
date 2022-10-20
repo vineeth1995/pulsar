@@ -28,7 +28,6 @@ import org.apache.pulsar.broker.PulsarService;
 import org.apache.pulsar.broker.loadbalance.LoadManager;
 import org.apache.pulsar.broker.loadbalance.ModularLoadManager;
 import org.apache.pulsar.broker.loadbalance.ResourceUnit;
-import org.apache.pulsar.common.naming.NamespaceBundle;
 import org.apache.pulsar.common.naming.ServiceUnitId;
 import org.apache.pulsar.common.stats.Metrics;
 import org.apache.pulsar.policies.data.loadbalancer.LoadManagerReport;
@@ -66,11 +65,8 @@ public class ModularLoadManagerWrapper implements LoadManager {
     
     @Override
     public Optional<ResourceUnit> getLeastLoaded(final ServiceUnitId serviceUnit) {
-        System.out.println("--------- getting least loaded broker in leader broker - -------------");
         String bundleRange = LoadManagerShared.getBundleRangeFromBundleName(serviceUnit.toString());
-        System.out.println("------- bundleRange - " + bundleRange);
         String affinityBroker = loadManager.getBundleBrokerAffinity(bundleRange);
-        System.out.println("%%%%%%% got affinity broker - " + affinityBroker);
         if (affinityBroker != null) {
             loadManager.removeBundleBrokerAffinity(bundleRange);
             return Optional.of(buildBrokerResourceUnit(affinityBroker));
@@ -155,7 +151,6 @@ public class ModularLoadManagerWrapper implements LoadManager {
     private SimpleResourceUnit buildBrokerResourceUnit (String broker) {
         String webServiceUrl = getBrokerWebServiceUrl(broker);
         String brokerZnodeName = getBrokerZnodeName(broker, webServiceUrl);
-        System.out.println("?????? webservice url - " + webServiceUrl + " ???????? brokerZnodeName" + brokerZnodeName);
         return new SimpleResourceUnit(webServiceUrl,
                 new PulsarResourceDescription(), Map.of(ResourceUnit.PROPERTY_KEY_BROKER_ZNODE_NAME, brokerZnodeName));
     }
@@ -167,13 +162,11 @@ public class ModularLoadManagerWrapper implements LoadManager {
     
     @Override
     public void setBundleBrokerAffinity(String bundle, String broker) {
-        System.out.println("@@@@@@@ Called setBundleBrokerAffinity in modularLoadManagerWrapper @@@@@@");
         loadManager.setBundleBrokerAffinity(bundle, broker);
     }
 
     @Override
     public void removeBundleBrokerAffinity(String bundle) {
-        System.out.println("@@@@@@@ Called removeBundleBrokerAffinity in modularLoadManagerWrapper @@@@@@");
         loadManager.removeBundleBrokerAffinity(bundle);
     }
 }

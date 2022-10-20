@@ -854,14 +854,12 @@ public abstract class NamespacesBase extends AdminResource {
     }
 
     public void setNamespaceBundleAffinity (String bundleRange, String brokerUrl) {
-        log.info("^^^^^^^^ bundleRange - " + bundleRange + " ^^^^^^^^^^^^ brokerUrl - " + brokerUrl);
         if (brokerUrl != null) {
             if (!this.isLeaderBroker()) {
                 LeaderBroker leaderBroker = pulsar().getLeaderElectionService().getCurrentLeader().get();
                 String leaderBrokerUrl = leaderBroker.getServiceUrl();
                 try {
                     URL redirectUrl = new URL(leaderBrokerUrl);
-                    log.info("~~~~~~~~ leaderBroker Url ~~~~~~~~~~ " + leaderBrokerUrl);
                     
                     URI redirect = UriBuilder.fromUri(uri.getRequestUri()).host(redirectUrl.getHost())
                             .port(redirectUrl.getPort()).replaceQueryParam("authoritative",
@@ -872,7 +870,6 @@ public abstract class NamespacesBase extends AdminResource {
                     throw new WebApplicationException(Response.temporaryRedirect(redirect).build());
                     
                 } catch (MalformedURLException e) {
-                    log.info("((((((( Malformed url ))))))))))");
                     e.printStackTrace();
                 }
             }
@@ -924,8 +921,6 @@ public abstract class NamespacesBase extends AdminResource {
                                         namespaceName, bundleRange);
                                 return CompletableFuture.completedFuture(null);
                             }
-                            log.info(">>>>>>> broker in use - >>>> " + pulsar().getBrokerServiceUrl());
-                            
                             return validateNamespaceBundleOwnershipAsync(namespaceName, policies.bundles, bundleRange,
                                     authoritative, true)
                                     .thenCompose(nsBundle -> {

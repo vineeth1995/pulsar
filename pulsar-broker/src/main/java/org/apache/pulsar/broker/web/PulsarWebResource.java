@@ -649,7 +649,6 @@ public abstract class PulsarWebResource {
                     .readOnly(readOnly)
                     .loadTopicsInBundle(false).build();
             Optional<URL> webUrl = nsService.getWebServiceUrl(bundle, options);
-            log.info("++++++ web url host- " + webUrl.get().getHost() + " ++++++++ web url port - " + webUrl.get().getPort());
             // Ensure we get a url
             if (webUrl == null || !webUrl.isPresent()) {
                 log.warn("Unable to get web service url");

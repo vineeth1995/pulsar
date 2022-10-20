@@ -317,26 +317,30 @@ public class ModularLoadManagerImplTest {
                 new TenantInfoImpl(Sets.newHashSet("appid1", "appid2"), Sets.newHashSet(cluster)));
         admin1.namespaces().createNamespace(namespace, 16);
         
-        
         String topicLookup = admin1.lookups().lookupTopic(topic);
         String bundleRange = admin1.lookups().getBundleRange(topic);
         
-        System.out.println(bundleRange);
-        
-        String firstBrokerServiceUrl =pulsar1.getBrokerServiceUrl();
+        String brokerServiceUrl = pulsar1.getBrokerServiceUrl();
         String brokerUrl = pulsar1.getSafeWebServiceAddress();
         Random rand=new Random();
-        if (topicLookup.equals(firstBrokerServiceUrl)) {
-            brokerUrl = (rand.nextInt(2) == 0) ? pulsar2.getSafeWebServiceAddress() : pulsar3.getSafeWebServiceAddress();
+        
+        if (topicLookup.equals(brokerServiceUrl)) {
+            int x = rand.nextInt(2);
+            if (x == 0) {
+                brokerUrl = pulsar2.getSafeWebServiceAddress();
+                brokerServiceUrl = pulsar2.getBrokerServiceUrl();
+            }
+            else {
+                brokerUrl = pulsar3.getSafeWebServiceAddress();
+                brokerServiceUrl = pulsar3.getBrokerServiceUrl();
+            }
         }
         
-        System.out.println("broker affinity url - " + brokerUrl);
-
-        admin1.namespaces().unloadNamespaceBundle(namespace, bundleRange);
-        sleep(1000);
+        admin1.namespaces().unloadNamespaceBundle(namespace, bundleRange, brokerUrl);
+        
         String topicLookupAfterUnload = admin1.lookups().lookupTopic(topic);
-        System.out.println("!!!!!!! Broker after unload - " + topicLookupAfterUnload);
-        Assert.assertNotEquals(topicLookup, topicLookupAfterUnload);
+        
+        Assert.assertEquals(brokerServiceUrl, topicLookupAfterUnload);
         pulsar3.close();
     }
 

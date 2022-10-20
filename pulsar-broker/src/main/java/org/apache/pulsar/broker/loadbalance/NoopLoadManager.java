@@ -27,12 +27,10 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.ConcurrentHashMap;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.bookkeeper.mledger.impl.ManagedCursorContainer;
 import org.apache.pulsar.broker.PulsarServerException;
 import org.apache.pulsar.broker.PulsarService;
 import org.apache.pulsar.broker.loadbalance.impl.PulsarResourceDescription;
 import org.apache.pulsar.broker.loadbalance.impl.SimpleResourceUnit;
-import org.apache.pulsar.common.naming.NamespaceBundle;
 import org.apache.pulsar.common.naming.ServiceUnitId;
 import org.apache.pulsar.common.stats.Metrics;
 import org.apache.pulsar.metadata.api.MetadataStoreException;
