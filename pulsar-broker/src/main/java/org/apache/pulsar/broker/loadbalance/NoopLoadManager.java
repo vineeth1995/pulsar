@@ -24,7 +24,10 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
+import java.util.concurrent.ConcurrentHashMap;
+
 import lombok.extern.slf4j.Slf4j;
+import org.apache.bookkeeper.mledger.impl.ManagedCursorContainer;
 import org.apache.pulsar.broker.PulsarServerException;
 import org.apache.pulsar.broker.PulsarService;
 import org.apache.pulsar.broker.loadbalance.impl.PulsarResourceDescription;
@@ -44,11 +47,13 @@ public class NoopLoadManager implements LoadManager {
     private String lookupServiceAddress;
     private ResourceUnit localResourceUnit;
     private LockManager<LocalBrokerData> lockManager;
+    private ConcurrentHashMap<String, String> bundleBrokerAffinityMap;
 
     @Override
     public void initialize(PulsarService pulsar) {
         this.pulsar = pulsar;
         this.lockManager = pulsar.getCoordinationService().getLockManager(LocalBrokerData.class);
+        this.bundleBrokerAffinityMap = new ConcurrentHashMap<>();
     }
 
     @Override
@@ -145,16 +150,17 @@ public class NoopLoadManager implements LoadManager {
 
     @Override
     public String getBundleBrokerAffinity(String bundle) {
-        return null;
+        return this.bundleBrokerAffinityMap.get(bundle);
     }
 
     @Override
     public void setBundleBrokerAffinity(String bundle, String broker) {
-
+        broker = broker.replaceFirst("http[s]?://", "");
+        this.bundleBrokerAffinityMap.put(bundle, broker);
     }
 
     @Override
     public void removeBundleBrokerAffinity(String bundle) {
-
+        this.bundleBrokerAffinityMap.remove(bundle);
     }
 }
