@@ -528,6 +528,9 @@ public class NamespaceService implements AutoCloseable {
                     if (makeLoadManagerDecisionOnThisBroker) {
                         Optional<Pair<String, String>> availableBroker = getLeastLoadedFromLoadManager(bundle);
                         if (!availableBroker.isPresent()) {
+                            LOG.info("Load manager didn't return any available broker. "
+                                            + "Returning empty result to lookup. NamespaceBundle[{}]",
+                                    bundle);
                             LOG.warn("Load manager didn't return any available broker. "
                                             + "Returning empty result to lookup. NamespaceBundle[{}]",
                                     bundle);
@@ -535,11 +538,13 @@ public class NamespaceService implements AutoCloseable {
                             return;
                         }
                         candidateBroker = availableBroker.get().getLeft();
+                        LOG.info("&&&&&& candidateBroker - {}", candidateBroker);
                         candidateBrokerAdvertisedAddr = availableBroker.get().getRight();
                         authoritativeRedirect = true;
                     } else {
                         // forward to leader broker to make assignment
                         candidateBroker = currentLeader.get().getServiceUrl();
+                        LOG.info("&&&&&& candidateBroker - {}", candidateBroker);
                     }
                 }
             }
@@ -554,17 +559,20 @@ public class NamespaceService implements AutoCloseable {
 
             if (candidateBroker.equals(pulsar.getSafeWebServiceAddress())) {
                 // Load manager decided that the local broker should try to become the owner
+                LOG.info("******** Load manager decided that the local broker should try to become the owner ********");
                 ownershipCache.tryAcquiringOwnership(bundle).thenAccept(ownerInfo -> {
                     if (ownerInfo.isDisabled()) {
                         if (LOG.isDebugEnabled()) {
                             LOG.debug("Namespace bundle {} is currently being unloaded", bundle);
                         }
                         lookupFuture.completeExceptionally(new IllegalStateException(
-                                String.format("Namespace bundle %s is currently being unloaded", bundle)));
+                                format("Namespace bundle %s is currently being unloaded", bundle)));
                     } else {
                         // Found owner for the namespace bundle
 
+                        LOG.info("******** Found owner for namespace bundle ********");
                         if (options.isLoadTopicsInBundle()) {
+                            LOG.info("########### lookup namespace topics ########");
                             // Schedule the task to pre-load topics
                             pulsar.loadNamespaceTopics(bundle);
                         }
@@ -587,6 +595,7 @@ public class NamespaceService implements AutoCloseable {
                                 return;
                             }
                         } else {
+                            LOG.info("@@@@ ownerInfo url - {}", ownerInfo.getHttpUrl());
                             lookupFuture.complete(Optional.of(new LookupResult(ownerInfo)));
                             return;
                         }
@@ -600,7 +609,8 @@ public class NamespaceService implements AutoCloseable {
 
             } else {
                 // Load managed decider some other broker should try to acquire ownership
-
+                LOG.info("******** Load manager decided that the some other broker should try to become the owner ********");
+                LOG.info("Redirecting to broker {} to acquire ownership of bundle {}", candidateBroker, bundle);
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("Redirecting to broker {} to acquire ownership of bundle {}", candidateBroker, bundle);
                 }
@@ -706,6 +716,7 @@ public class NamespaceService implements AutoCloseable {
         System.out.println("^^^^^^ loading least loaded in leader - " + pulsar.getBrokerServiceUrl());
         Optional<ResourceUnit> leastLoadedBroker = loadManager.get().getLeastLoaded(bundle);
         if (!leastLoadedBroker.isPresent()) { 
+            LOG.info("No broker is available for {}", bundle);
             LOG.warn("No broker is available for {}", bundle);
             return Optional.empty();
         }
@@ -713,6 +724,8 @@ public class NamespaceService implements AutoCloseable {
         String lookupAddress = leastLoadedBroker.get().getResourceId();
         String advertisedAddr = (String) leastLoadedBroker.get()
                 .getProperty(ResourceUnit.PROPERTY_KEY_BROKER_ZNODE_NAME);
+        LOG.info("*** lookupAddress - " + lookupAddress);
+        LOG.info("advertisedAddr - " + advertisedAddr);
         if (LOG.isDebugEnabled()) {
             LOG.debug("{} : redirecting to the least loaded broker, lookup address={}",
                     pulsar.getSafeWebServiceAddress(),

@@ -1217,7 +1217,7 @@ public class ModularLoadManagerImpl implements ModularLoadManager {
     
     @Override
     public String getBundleBrokerAffinity(String bundle) {
-        return  this.bundleBrokerAffinityMap.get(bundle);
+        return this.bundleBrokerAffinityMap.get(bundle);
     }
     
     @Override
@@ -1226,5 +1226,10 @@ public class ModularLoadManagerImpl implements ModularLoadManager {
         broker = broker.replace("https://", "");
         this.bundleBrokerAffinityMap.put(bundle, broker);
         log.info("---------- Map value in setBundleBrokerAffinity --------- " + this.bundleBrokerAffinityMap.get(bundle));
+    }
+
+    @Override
+    public void removeBundleBrokerAffinity(String bundle) {
+        this.bundleBrokerAffinityMap.remove(bundle);
     }
 }

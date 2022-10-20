@@ -1453,6 +1453,11 @@ public class SimpleLoadManagerImpl implements LoadManager, Consumer<Notification
     public void setBundleBrokerAffinity(String bundle, String broker) {
         
     }
+    
+    @Override
+    public void removeBundleBrokerAffinity(String bundle) {
+
+    }
 
     @Override
     public void stop() throws PulsarServerException {

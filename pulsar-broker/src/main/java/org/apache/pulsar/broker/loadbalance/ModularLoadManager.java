@@ -146,4 +146,6 @@ public interface ModularLoadManager {
     String getBundleBrokerAffinity(String bundle);
 
     void setBundleBrokerAffinity(String bundle, String broker);
+
+    void removeBundleBrokerAffinity(String bundle);
 }

@@ -152,4 +152,9 @@ public class NoopLoadManager implements LoadManager {
     public void setBundleBrokerAffinity(String bundle, String broker) {
 
     }
+
+    @Override
+    public void removeBundleBrokerAffinity(String bundle) {
+
+    }
 }

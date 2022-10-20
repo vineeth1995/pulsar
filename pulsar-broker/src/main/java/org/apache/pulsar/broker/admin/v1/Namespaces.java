@@ -896,7 +896,8 @@ public class Namespaces extends NamespacesBase {
                                       @QueryParam("brokerUrl") String brokerUrl) {
         log.info(" ********** The request reached the REST API unloadNamespaceBundle ***********");
         validateNamespaceName(property, cluster, namespace);
-        internalUnloadNamespaceBundleAsync(bundleRange, authoritative, brokerUrl)
+        setNamespaceBundleAffinity(bundleRange, brokerUrl);
+        internalUnloadNamespaceBundleAsync(bundleRange, authoritative)
                 .thenAccept(__ -> {
                     log.info("[{}] Successfully unloaded namespace bundle {}", clientAppId(), bundleRange);
                     asyncResponse.resume(Response.noContent().build());
@@ -1715,39 +1716,6 @@ public class Namespaces extends NamespacesBase {
         validateNamespaceName(tenant, cluster, namespace);
         internalSetSchemaAutoUpdateCompatibilityStrategy(strategy);
     }
-
-    @PUT
-    @Path("/{bundleRange}/{broker}/setBundleBrokerAffinity")
-    @ApiOperation(hidden = true, value = "Set bundle Affinity")
-    @ApiResponses(value = {
-            @ApiResponse(code = 307, message = "Current broker is not the leader"),
-            @ApiResponse(code = 403, message = "Don't have admin permission") })
-    public void setBundleBrokerAffinity(@Suspended final AsyncResponse asyncResponse,
-                                      @PathParam("bundleRange") String bundleRange, @PathParam("broker") String broker) {
-        System.out.println(" ********** The request reached the REST API setBundleBrokerAffinity ***********");
-        System.out.println("^^^^^^^^ bundleRange - " + bundleRange + " ^^^^^^^^^^^^ brokerUrl - " + broker);
-
-        if (!this.isLeaderBroker()) {
-            LeaderBroker leaderBroker = pulsar().getLeaderElectionService().getCurrentLeader().get();
-            String leaderBrokerUrl = leaderBroker.getServiceUrl();
-            try {
-                URL redirectUrl = new URL(leaderBrokerUrl);
-                log.info("~~~~~~~~ leaderBroker Url ~~~~~~~~~~ " + leaderBrokerUrl);
-
-                URI redirect = UriBuilder.fromUri(uri.getRequestUri()).host(redirectUrl.getHost())
-                        .port(redirectUrl.getPort()).replaceQueryParam("authoritative",
-                                false).build();
-
-                // Redirect
-                log.debug("Redirecting the rest call to {}", redirect);
-                throw new WebApplicationException(Response.temporaryRedirect(redirect).build());
-
-            } catch (MalformedURLException e) {
-                log.info("((((((( Malformed url ))))))))))");
-                e.printStackTrace();
-            }
-        }
-        pulsar().getLoadManager().get().setBundleBrokerAffinity(bundleRange, broker);
-    }
+    
     private static final Logger log = LoggerFactory.getLogger(Namespaces.class);
 }

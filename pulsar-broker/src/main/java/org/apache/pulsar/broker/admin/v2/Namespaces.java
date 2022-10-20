@@ -815,7 +815,8 @@ public class Namespaces extends NamespacesBase {
             @QueryParam("authoritative") @DefaultValue("false") boolean authoritative,
                                       @QueryParam("brokerUrl") String brokerUrl) {
         validateNamespaceName(tenant, namespace);
-        internalUnloadNamespaceBundleAsync(bundleRange, authoritative, brokerUrl)
+        setNamespaceBundleAffinity(bundleRange, brokerUrl);
+        internalUnloadNamespaceBundleAsync(bundleRange, authoritative)
                 .thenAccept(__ -> {
                     log.info("[{}] Successfully unloaded namespace bundle {}", clientAppId(), bundleRange);
                     asyncResponse.resume(Response.noContent().build());

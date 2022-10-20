@@ -853,35 +853,34 @@ public abstract class NamespacesBase extends AdminResource {
         }
     }
 
-    public CompletableFuture<Void> setNamespaceBundleAffinity (String bundleRange, String brokerUrl) {
+    public void setNamespaceBundleAffinity (String bundleRange, String brokerUrl) {
         log.info("^^^^^^^^ bundleRange - " + bundleRange + " ^^^^^^^^^^^^ brokerUrl - " + brokerUrl);
-        if (!this.isLeaderBroker()) {
-            LeaderBroker leaderBroker = pulsar().getLeaderElectionService().getCurrentLeader().get();
-            String leaderBrokerUrl = leaderBroker.getServiceUrl();
-            try {
-                URL redirectUrl = new URL(leaderBrokerUrl);
-                log.info("~~~~~~~~ leaderBroker Url ~~~~~~~~~~ " + leaderBrokerUrl);
-                
-                String path = "/admin/namespaces/" + bundleRange + "/" + brokerUrl;
-                URI uri = UriBuilder.fromPath(path).host(redirectUrl.getHost())
-                        .port(redirectUrl.getPort()).replaceQueryParam("authoritative",
-                                false).build();
+        if (brokerUrl != null) {
+            if (!this.isLeaderBroker()) {
+                LeaderBroker leaderBroker = pulsar().getLeaderElectionService().getCurrentLeader().get();
+                String leaderBrokerUrl = leaderBroker.getServiceUrl();
+                try {
+                    URL redirectUrl = new URL(leaderBrokerUrl);
+                    log.info("~~~~~~~~ leaderBroker Url ~~~~~~~~~~ " + leaderBrokerUrl);
+                    
+                    URI redirect = UriBuilder.fromUri(uri.getRequestUri()).host(redirectUrl.getHost())
+                            .port(redirectUrl.getPort()).replaceQueryParam("authoritative",
+                                    false).build();
 
-                log.info("Making call to leader broker to set bundle affinity {}", uri);
-                // Redirect
-                log.debug("Making call to leader broker to set bundle affinity {}", uri);
-                
-                Response.seeOther(uri).build();
-                
-            } catch (MalformedURLException e) {
-                log.info("((((((( Malformed url ))))))))))");
-                e.printStackTrace();
+                    // Redirect
+                    log.debug("Redirecting the rest call to {}", redirect);
+                    throw new WebApplicationException(Response.temporaryRedirect(redirect).build());
+                    
+                } catch (MalformedURLException e) {
+                    log.info("((((((( Malformed url ))))))))))");
+                    e.printStackTrace();
+                }
             }
+            pulsar().getLoadManager().get().setBundleBrokerAffinity(bundleRange, brokerUrl);
         }
-        pulsar().getLoadManager().get().setBundleBrokerAffinity(bundleRange, brokerUrl);
     }
 
-    public CompletableFuture<Void> internalUnloadNamespaceBundleAsync(String bundleRange, boolean authoritative, String brokerUrl) {
+    public CompletableFuture<Void> internalUnloadNamespaceBundleAsync(String bundleRange, boolean authoritative) {
         return validateSuperUserAccessAsync()
                 .thenAccept(__ -> {
                     checkNotNull(bundleRange, "BundleRange should not be null");
@@ -927,7 +926,6 @@ public abstract class NamespacesBase extends AdminResource {
                             }
                             log.info(">>>>>>> broker in use - >>>> " + pulsar().getBrokerServiceUrl());
                             
-                            setNamespaceBundleAffinity(bundleRange, brokerUrl);
                             return validateNamespaceBundleOwnershipAsync(namespaceName, policies.bundles, bundleRange,
                                     authoritative, true)
                                     .thenCompose(nsBundle-> {

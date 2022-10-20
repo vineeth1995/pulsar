@@ -124,6 +124,8 @@ public interface LoadManager {
 
     void setBundleBrokerAffinity(String bundle, String broker);
 
+    void removeBundleBrokerAffinity(String bundle);
+
     void stop() throws PulsarServerException;
 
     /**

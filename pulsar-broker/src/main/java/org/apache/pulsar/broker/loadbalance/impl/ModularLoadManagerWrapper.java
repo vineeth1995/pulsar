@@ -72,6 +72,7 @@ public class ModularLoadManagerWrapper implements LoadManager {
         String affinityBroker = loadManager.getBundleBrokerAffinity(bundleRange);
         System.out.println("%%%%%%% got affinity broker - " + affinityBroker);
         if (affinityBroker != null) {
+            loadManager.removeBundleBrokerAffinity(bundleRange);
             return Optional.of(buildBrokerResourceUnit(affinityBroker));
         }
         Optional<String> leastLoadedBroker = loadManager.selectBrokerForAssignment(bundle);
@@ -154,6 +155,7 @@ public class ModularLoadManagerWrapper implements LoadManager {
     private SimpleResourceUnit buildBrokerResourceUnit (String broker) {
         String webServiceUrl = getBrokerWebServiceUrl(broker);
         String brokerZnodeName = getBrokerZnodeName(broker, webServiceUrl);
+        System.out.println("?????? webservice url - " + webServiceUrl + " ???????? brokerZnodeName" + brokerZnodeName);
         return new SimpleResourceUnit(webServiceUrl,
                 new PulsarResourceDescription(), Map.of(ResourceUnit.PROPERTY_KEY_BROKER_ZNODE_NAME, brokerZnodeName));
     }
@@ -167,5 +169,11 @@ public class ModularLoadManagerWrapper implements LoadManager {
     public void setBundleBrokerAffinity(String bundle, String broker) {
         System.out.println("@@@@@@@ Called setBundleBrokerAffinity in modularLoadManagerWrapper @@@@@@");
         loadManager.setBundleBrokerAffinity(bundle, broker);
+    }
+
+    @Override
+    public void removeBundleBrokerAffinity(String bundle) {
+        System.out.println("@@@@@@@ Called removeBundleBrokerAffinity in modularLoadManagerWrapper @@@@@@");
+        loadManager.removeBundleBrokerAffinity(bundle);
     }
 }
