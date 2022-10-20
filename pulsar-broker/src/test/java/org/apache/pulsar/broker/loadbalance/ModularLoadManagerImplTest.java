@@ -290,7 +290,7 @@ public class ModularLoadManagerImplTest {
 
 
     
-    @Test(invocationCount = 10)
+    @Test(invocationCount = 2)
     public void testBrokerAffinity() throws Exception {
         // Start broker 3
         ServiceConfiguration config = new ServiceConfiguration();
@@ -332,7 +332,7 @@ public class ModularLoadManagerImplTest {
         
         System.out.println("broker affinity url - " + brokerUrl);
 
-        admin1.namespaces().unloadNamespaceBundle(namespace, bundleRange, brokerUrl);
+        admin1.namespaces().unloadNamespaceBundle(namespace, bundleRange);
         sleep(1000);
         String topicLookupAfterUnload = admin1.lookups().lookupTopic(topic);
         System.out.println("!!!!!!! Broker after unload - " + topicLookupAfterUnload);

@@ -187,33 +187,33 @@ public class SimpleLoadManagerImplTest {
                     data -> policies.getPolicies());
         }
     }
-//
-//    @Test
-//    public void testBasicBrokerSelection() throws Exception {
-//        SimpleLoadManagerImpl loadManager = new SimpleLoadManagerImpl(pulsar1);
-//        PulsarResourceDescription rd = new PulsarResourceDescription();
-//        rd.put("memory", new ResourceUsage(1024, 4096));
-//        rd.put("cpu", new ResourceUsage(10, 100));
-//        rd.put("bandwidthIn", new ResourceUsage(250 * 1024, 1024 * 1024));
-//        rd.put("bandwidthOut", new ResourceUsage(550 * 1024, 1024 * 1024));
-//
-//        ResourceUnit ru1 = new SimpleResourceUnit("http://prod2-broker7.messaging.usw.example.com:8080", rd);
-//        Set<ResourceUnit> rus = new HashSet<>();
-//        rus.add(ru1);
-//        LoadRanker lr = new ResourceAvailabilityRanker();
-//        AtomicReference<Map<Long, Set<ResourceUnit>>> sortedRankingsInstance = new AtomicReference<>(new HashMap<>());
-//        sortedRankingsInstance.get().put(lr.getRank(rd), rus);
-//
-//        Field sortedRankings = SimpleLoadManagerImpl.class.getDeclaredField("sortedRankings");
-//        sortedRankings.setAccessible(true);
-//        sortedRankings.set(loadManager, sortedRankingsInstance);
-//
-//        Optional<ResourceUnit> res = loadManager
-//                .getLeastLoaded(NamespaceBundle.get("pulsar/use/primary-ns.10"));
-//        // broker is not active so found should be null
-//        assertEquals(res, Optional.empty(), "found a broker when expected none to be found");
-//
-//    }
+
+    @Test
+    public void testBasicBrokerSelection() throws Exception {
+        SimpleLoadManagerImpl loadManager = new SimpleLoadManagerImpl(pulsar1);
+        PulsarResourceDescription rd = new PulsarResourceDescription();
+        rd.put("memory", new ResourceUsage(1024, 4096));
+        rd.put("cpu", new ResourceUsage(10, 100));
+        rd.put("bandwidthIn", new ResourceUsage(250 * 1024, 1024 * 1024));
+        rd.put("bandwidthOut", new ResourceUsage(550 * 1024, 1024 * 1024));
+
+        ResourceUnit ru1 = new SimpleResourceUnit("http://prod2-broker7.messaging.usw.example.com:8080", rd);
+        Set<ResourceUnit> rus = new HashSet<>();
+        rus.add(ru1);
+        LoadRanker lr = new ResourceAvailabilityRanker();
+        AtomicReference<Map<Long, Set<ResourceUnit>>> sortedRankingsInstance = new AtomicReference<>(new HashMap<>());
+        sortedRankingsInstance.get().put(lr.getRank(rd), rus);
+
+        Field sortedRankings = SimpleLoadManagerImpl.class.getDeclaredField("sortedRankings");
+        sortedRankings.setAccessible(true);
+        sortedRankings.set(loadManager, sortedRankingsInstance);
+
+        Optional<ResourceUnit> res = loadManager
+                .getLeastLoaded(NamespaceName.get("pulsar/use/primary-ns.10"));
+        // broker is not active so found should be null
+        assertEquals(res, Optional.empty(), "found a broker when expected none to be found");
+
+    }
 
     private void setObjectField(Class<?> objClass, Object objInstance, String fieldName, Object newValue)
             throws Exception {
@@ -222,72 +222,72 @@ public class SimpleLoadManagerImplTest {
         field.set(objInstance, newValue);
     }
 
-//    @Test
-//    public void testPrimary() throws Exception {
-//        createNamespacePolicies(pulsar1);
-//        SimpleLoadManagerImpl loadManager = new SimpleLoadManagerImpl(pulsar1);
-//        PulsarResourceDescription rd = new PulsarResourceDescription();
-//        rd.put("memory", new ResourceUsage(1024, 4096));
-//        rd.put("cpu", new ResourceUsage(10, 100));
-//        rd.put("bandwidthIn", new ResourceUsage(250 * 1024, 1024 * 1024));
-//        rd.put("bandwidthOut", new ResourceUsage(550 * 1024, 1024 * 1024));
-//
-//        ResourceUnit ru1 = new SimpleResourceUnit(
-//                "http://" + pulsar1.getAdvertisedAddress() + ":" + pulsar1.getConfiguration().getWebServicePort().get(), rd);
-//        Set<ResourceUnit> rus = new HashSet<>();
-//        rus.add(ru1);
-//        LoadRanker lr = new ResourceAvailabilityRanker();
-//
-//        // inject the load report and rankings
-//        Map<ResourceUnit, org.apache.pulsar.policies.data.loadbalancer.LoadReport> loadReports = new HashMap<>();
-//        org.apache.pulsar.policies.data.loadbalancer.LoadReport loadReport = new org.apache.pulsar.policies.data.loadbalancer.LoadReport();
-//        loadReport.setSystemResourceUsage(new SystemResourceUsage());
-//        loadReports.put(ru1, loadReport);
-//        setObjectField(SimpleLoadManagerImpl.class, loadManager, "currentLoadReports", loadReports);
-//
-//        ResourceUnitRanking ranking = new ResourceUnitRanking(loadReport.getSystemResourceUsage(),
-//                new HashSet<String>(), new ResourceQuota(), new HashSet<String>(), new ResourceQuota());
-//        Map<ResourceUnit, ResourceUnitRanking> rankings = new HashMap<>();
-//        rankings.put(ru1, ranking);
-//        setObjectField(SimpleLoadManagerImpl.class, loadManager, "resourceUnitRankings", rankings);
-//
-//        AtomicReference<Map<Long, Set<ResourceUnit>>> sortedRankingsInstance = new AtomicReference<>(new HashMap<>());
-//        sortedRankingsInstance.get().put(lr.getRank(rd), rus);
-//        setObjectField(SimpleLoadManagerImpl.class, loadManager, "sortedRankings", sortedRankingsInstance);
-//
-//        ResourceUnit found = loadManager
-//                .getLeastLoaded(NamespaceName.get("pulsar/use/primary-ns.10")).get();
-//        // broker is not active so found should be null
-//        assertNotEquals(found, null, "did not find a broker when expected one to be found");
-//
-//    }
-//
-//    @Test(enabled = false)
-//    public void testPrimarySecondary() throws Exception {
-//        createNamespacePolicies(pulsar1);
-//        SimpleLoadManagerImpl loadManager = new SimpleLoadManagerImpl(pulsar1);
-//
-//        PulsarResourceDescription rd = new PulsarResourceDescription();
-//        rd.put("memory", new ResourceUsage(1024, 4096));
-//        rd.put("cpu", new ResourceUsage(10, 100));
-//        rd.put("bandwidthIn", new ResourceUsage(250 * 1024, 1024 * 1024));
-//        rd.put("bandwidthOut", new ResourceUsage(550 * 1024, 1024 * 1024));
-//
-//        ResourceUnit ru1 = new SimpleResourceUnit("http://prod2-broker7.messaging.usw.example.com:8080", rd);
-//        Set<ResourceUnit> rus = new HashSet<>();
-//        rus.add(ru1);
-//        LoadRanker lr = new ResourceAvailabilityRanker();
-//        AtomicReference<Map<Long, Set<ResourceUnit>>> sortedRankingsInstance = new AtomicReference<>(new HashMap<>());
-//        sortedRankingsInstance.get().put(lr.getRank(rd), rus);
-//
-//        Field sortedRankings = SimpleLoadManagerImpl.class.getDeclaredField("sortedRankings");
-//        sortedRankings.setAccessible(true);
-//        sortedRankings.set(loadManager, sortedRankingsInstance);
-//
-//        ResourceUnit found = loadManager
-//                .getLeastLoaded(NamespaceName.get("pulsar/use/primary-ns.10")).get();
-//        assertEquals(found.getResourceId(), ru1.getResourceId());
-//    }
+    @Test
+    public void testPrimary() throws Exception {
+        createNamespacePolicies(pulsar1);
+        SimpleLoadManagerImpl loadManager = new SimpleLoadManagerImpl(pulsar1);
+        PulsarResourceDescription rd = new PulsarResourceDescription();
+        rd.put("memory", new ResourceUsage(1024, 4096));
+        rd.put("cpu", new ResourceUsage(10, 100));
+        rd.put("bandwidthIn", new ResourceUsage(250 * 1024, 1024 * 1024));
+        rd.put("bandwidthOut", new ResourceUsage(550 * 1024, 1024 * 1024));
+
+        ResourceUnit ru1 = new SimpleResourceUnit(
+                "http://" + pulsar1.getAdvertisedAddress() + ":" + pulsar1.getConfiguration().getWebServicePort().get(), rd);
+        Set<ResourceUnit> rus = new HashSet<>();
+        rus.add(ru1);
+        LoadRanker lr = new ResourceAvailabilityRanker();
+
+        // inject the load report and rankings
+        Map<ResourceUnit, org.apache.pulsar.policies.data.loadbalancer.LoadReport> loadReports = new HashMap<>();
+        org.apache.pulsar.policies.data.loadbalancer.LoadReport loadReport = new org.apache.pulsar.policies.data.loadbalancer.LoadReport();
+        loadReport.setSystemResourceUsage(new SystemResourceUsage());
+        loadReports.put(ru1, loadReport);
+        setObjectField(SimpleLoadManagerImpl.class, loadManager, "currentLoadReports", loadReports);
+
+        ResourceUnitRanking ranking = new ResourceUnitRanking(loadReport.getSystemResourceUsage(),
+                new HashSet<String>(), new ResourceQuota(), new HashSet<String>(), new ResourceQuota());
+        Map<ResourceUnit, ResourceUnitRanking> rankings = new HashMap<>();
+        rankings.put(ru1, ranking);
+        setObjectField(SimpleLoadManagerImpl.class, loadManager, "resourceUnitRankings", rankings);
+
+        AtomicReference<Map<Long, Set<ResourceUnit>>> sortedRankingsInstance = new AtomicReference<>(new HashMap<>());
+        sortedRankingsInstance.get().put(lr.getRank(rd), rus);
+        setObjectField(SimpleLoadManagerImpl.class, loadManager, "sortedRankings", sortedRankingsInstance);
+
+        ResourceUnit found = loadManager
+                .getLeastLoaded(NamespaceName.get("pulsar/use/primary-ns.10")).get();
+        // broker is not active so found should be null
+        assertNotEquals(found, null, "did not find a broker when expected one to be found");
+
+    }
+
+    @Test(enabled = false)
+    public void testPrimarySecondary() throws Exception {
+        createNamespacePolicies(pulsar1);
+        SimpleLoadManagerImpl loadManager = new SimpleLoadManagerImpl(pulsar1);
+
+        PulsarResourceDescription rd = new PulsarResourceDescription();
+        rd.put("memory", new ResourceUsage(1024, 4096));
+        rd.put("cpu", new ResourceUsage(10, 100));
+        rd.put("bandwidthIn", new ResourceUsage(250 * 1024, 1024 * 1024));
+        rd.put("bandwidthOut", new ResourceUsage(550 * 1024, 1024 * 1024));
+
+        ResourceUnit ru1 = new SimpleResourceUnit("http://prod2-broker7.messaging.usw.example.com:8080", rd);
+        Set<ResourceUnit> rus = new HashSet<>();
+        rus.add(ru1);
+        LoadRanker lr = new ResourceAvailabilityRanker();
+        AtomicReference<Map<Long, Set<ResourceUnit>>> sortedRankingsInstance = new AtomicReference<>(new HashMap<>());
+        sortedRankingsInstance.get().put(lr.getRank(rd), rus);
+
+        Field sortedRankings = SimpleLoadManagerImpl.class.getDeclaredField("sortedRankings");
+        sortedRankings.setAccessible(true);
+        sortedRankings.set(loadManager, sortedRankingsInstance);
+
+        ResourceUnit found = loadManager
+                .getLeastLoaded(NamespaceName.get("pulsar/use/primary-ns.10")).get();
+        assertEquals(found.getResourceId(), ru1.getResourceId());
+    }
 
     @Test
     public void testResourceDescription() {

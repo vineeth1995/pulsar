@@ -706,7 +706,7 @@ public class NamespaceServiceTest extends BrokerTestBase {
         doReturn(true).when(loadManager).isCentralized();
         SimpleResourceUnit resourceUnit = new SimpleResourceUnit(pulsar.getSafeWebServiceAddress(), null);
         Optional<ResourceUnit> res = Optional.of(resourceUnit);
-        doReturn(res).when(loadManager).getLeastLoaded(any(NamespaceBundle.class));
+        doReturn(res).when(loadManager).getLeastLoaded(any(ServiceUnitId.class));
         loadManagerField.set(pulsar.getNamespaceService(), new AtomicReference<>(loadManager));
 
         @Cleanup

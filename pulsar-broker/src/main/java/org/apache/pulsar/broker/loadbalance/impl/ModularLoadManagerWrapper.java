@@ -65,9 +65,9 @@ public class ModularLoadManagerWrapper implements LoadManager {
     }
     
     @Override
-    public Optional<ResourceUnit> getLeastLoaded(final ServiceUnitId bundle) {
+    public Optional<ResourceUnit> getLeastLoaded(final ServiceUnitId serviceUnit) {
         System.out.println("--------- getting least loaded broker in leader broker - -------------");
-        String bundleRange = LoadManagerShared.getBundleRangeFromBundleName(bundle.toString());
+        String bundleRange = LoadManagerShared.getBundleRangeFromBundleName(serviceUnit.toString());
         System.out.println("------- bundleRange - " + bundleRange);
         String affinityBroker = loadManager.getBundleBrokerAffinity(bundleRange);
         System.out.println("%%%%%%% got affinity broker - " + affinityBroker);
@@ -75,7 +75,7 @@ public class ModularLoadManagerWrapper implements LoadManager {
             loadManager.removeBundleBrokerAffinity(bundleRange);
             return Optional.of(buildBrokerResourceUnit(affinityBroker));
         }
-        Optional<String> leastLoadedBroker = loadManager.selectBrokerForAssignment(bundle);
+        Optional<String> leastLoadedBroker = loadManager.selectBrokerForAssignment(serviceUnit);
         return leastLoadedBroker.map(this::buildBrokerResourceUnit);
     }
 

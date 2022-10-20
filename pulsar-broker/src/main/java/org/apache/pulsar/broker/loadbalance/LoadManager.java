@@ -57,7 +57,7 @@ public interface LoadManager {
     /**
      * Returns the Least Loaded Resource Unit decided by some algorithm or criteria which is implementation specific.
      */
-    Optional<ResourceUnit> getLeastLoaded(ServiceUnitId bundle) throws Exception;
+    Optional<ResourceUnit> getLeastLoaded(ServiceUnitId su) throws Exception;
 
     /**
      * Generate the load report.

@@ -928,7 +928,7 @@ public abstract class NamespacesBase extends AdminResource {
                             
                             return validateNamespaceBundleOwnershipAsync(namespaceName, policies.bundles, bundleRange,
                                     authoritative, true)
-                                    .thenCompose(nsBundle-> {
+                                    .thenCompose(nsBundle -> {
                                         return pulsar().getNamespaceService().unloadNamespaceBundle(nsBundle);
                                     });
                         }));

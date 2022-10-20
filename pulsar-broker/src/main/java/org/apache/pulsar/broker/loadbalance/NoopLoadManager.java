@@ -78,7 +78,7 @@ public class NoopLoadManager implements LoadManager {
     }
 
     @Override
-    public Optional<ResourceUnit> getLeastLoaded(ServiceUnitId bundle) throws Exception {
+    public Optional<ResourceUnit> getLeastLoaded(ServiceUnitId su) throws Exception {
         return Optional.of(localResourceUnit);
     }
 

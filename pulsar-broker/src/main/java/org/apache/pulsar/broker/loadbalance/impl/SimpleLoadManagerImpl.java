@@ -904,8 +904,8 @@ public class SimpleLoadManagerImpl implements LoadManager, Consumer<Notification
         }
     }
 
-    public Optional<ResourceUnit> getLeastLoaded(ServiceUnitId bundle) throws Exception {
-        return Optional.ofNullable(getLeastLoadedBroker(bundle, getAvailableBrokers(bundle)));
+    public Optional<ResourceUnit> getLeastLoaded(ServiceUnitId serviceUnit) throws Exception {
+        return Optional.ofNullable(getLeastLoadedBroker(serviceUnit, getAvailableBrokers(serviceUnit)));
     }
 
     public Multimap<Long, ResourceUnit> getResourceAvailabilityFor(ServiceUnitId serviceUnitId) throws Exception {
