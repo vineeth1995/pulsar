@@ -880,13 +880,21 @@ public class CmdNamespaces extends CmdBase {
         @Parameter(names = { "--bundle", "-b" }, description = "{start-boundary}_{end-boundary}")
         private String bundle;
 
+        @Parameter(names = { "--brokerUrl", "-u" }, description = "Target broker URL to which the bundle has to be allocated to")
+        private String broker;
+        
         @Override
         void run() throws PulsarAdminException {
             String namespace = validateNamespace(params);
             if (bundle == null) {
                 getAdmin().namespaces().unload(namespace);
             } else {
-                getAdmin().namespaces().unloadNamespaceBundle(namespace, bundle);
+                if (broker == null) {
+                    getAdmin().namespaces().unloadNamespaceBundle(namespace, bundle);
+                } else {
+                    getAdmin().namespaces().unloadNamespaceBundle(namespace, bundle, broker);
+                }
+
             }
         }
     }
