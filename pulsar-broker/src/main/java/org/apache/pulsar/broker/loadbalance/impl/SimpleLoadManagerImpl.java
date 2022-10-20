@@ -1457,7 +1457,7 @@ public class SimpleLoadManagerImpl implements LoadManager, Consumer<Notification
         broker = broker.replaceFirst("http[s]?://", "");
         this.bundleBrokerAffinityMap.put(bundle, broker);
     }
-    
+
     @Override
     public void removeNamespaceBundleAffinity(String bundle) {
         this.bundleBrokerAffinityMap.remove(bundle);

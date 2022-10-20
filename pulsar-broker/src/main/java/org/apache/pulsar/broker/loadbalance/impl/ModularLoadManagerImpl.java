@@ -21,7 +21,6 @@ package org.apache.pulsar.broker.loadbalance.impl;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 import io.netty.util.concurrent.DefaultThreadFactory;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.ConcurrentModificationException;
@@ -198,7 +197,7 @@ public class ModularLoadManagerImpl implements ModularLoadManager {
 
     private final Lock lock = new ReentrantLock();
     private Set<String> knownBrokers = ConcurrentHashMap.newKeySet();
-    private ConcurrentHashMap<String, String> bundleBrokerAffinityMap; 
+    private ConcurrentHashMap<String, String> bundleBrokerAffinityMap;
 
     /**
      * Initializes fields which do not depend on PulsarService. initialize(PulsarService) should subsequently be called.
@@ -1215,12 +1214,12 @@ public class ModularLoadManagerImpl implements ModularLoadManager {
 
         return metricsCollection;
     }
-    
+
     @Override
     public String getNamespaceBundleAffinity(String bundle) {
         return this.bundleBrokerAffinityMap.get(bundle);
     }
-    
+
     @Override
     public void setNamespaceBundleAffinity(String bundle, String broker) {
         broker = broker.replaceFirst("http[s]?://", "");
@@ -1232,4 +1231,3 @@ public class ModularLoadManagerImpl implements ModularLoadManager {
         this.bundleBrokerAffinityMap.remove(bundle);
     }
 }
- 

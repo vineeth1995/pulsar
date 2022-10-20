@@ -24,7 +24,6 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -45,7 +44,6 @@ import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
-
 import org.apache.pulsar.broker.admin.impl.NamespacesBase;
 import org.apache.pulsar.broker.web.RestException;
 import org.apache.pulsar.client.admin.PulsarAdminException;
@@ -887,8 +885,8 @@ public class Namespaces extends NamespacesBase {
     public void unloadNamespaceBundle(@Suspended final AsyncResponse asyncResponse,
             @PathParam("property") String property, @PathParam("cluster") String cluster,
             @PathParam("namespace") String namespace, @PathParam("bundle") String bundleRange,
-            @QueryParam("authoritative") @DefaultValue("false") boolean authoritative, 
-                                      @QueryParam("brokerUrl") String brokerUrl) {
+            @QueryParam("authoritative") @DefaultValue("false") boolean authoritative,
+            @QueryParam("brokerUrl") String brokerUrl) {
         validateNamespaceName(property, cluster, namespace);
         setNamespaceBundleAffinity(bundleRange, brokerUrl);
         internalUnloadNamespaceBundleAsync(bundleRange, authoritative)
@@ -1710,6 +1708,6 @@ public class Namespaces extends NamespacesBase {
         validateNamespaceName(tenant, cluster, namespace);
         internalSetSchemaAutoUpdateCompatibilityStrategy(strategy);
     }
-    
+
     private static final Logger log = LoggerFactory.getLogger(Namespaces.class);
 }

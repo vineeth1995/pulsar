@@ -62,7 +62,7 @@ public class ModularLoadManagerWrapper implements LoadManager {
     public LoadManagerReport generateLoadReport() {
         return loadManager.updateLocalBrokerData();
     }
-    
+
     @Override
     public Optional<ResourceUnit> getLeastLoaded(final ServiceUnitId serviceUnit) {
         String bundleRange = LoadManagerShared.getBundleRangeFromBundleName(serviceUnit.toString());
@@ -147,7 +147,7 @@ public class ModularLoadManagerWrapper implements LoadManager {
     public CompletableFuture<Set<String>> getAvailableBrokersAsync() {
         return loadManager.getAvailableBrokersAsync();
     }
-    
+
     private SimpleResourceUnit buildBrokerResourceUnit (String broker) {
         String webServiceUrl = getBrokerWebServiceUrl(broker);
         String brokerZnodeName = getBrokerZnodeName(broker, webServiceUrl);
@@ -159,7 +159,7 @@ public class ModularLoadManagerWrapper implements LoadManager {
     public String getNamespaceBundleAffinity(String bundle) {
         return loadManager.getNamespaceBundleAffinity(bundle);
     }
-    
+
     @Override
     public void setNamespaceBundleAffinity(String bundle, String broker) {
         loadManager.setNamespaceBundleAffinity(bundle, broker);

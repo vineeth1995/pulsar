@@ -860,7 +860,6 @@ public abstract class NamespacesBase extends AdminResource {
                 String leaderBrokerUrl = leaderBroker.getServiceUrl();
                 try {
                     URL redirectUrl = new URL(leaderBrokerUrl);
-                    
                     URI redirect = UriBuilder.fromUri(uri.getRequestUri()).host(redirectUrl.getHost())
                             .port(redirectUrl.getPort()).replaceQueryParam("authoritative",
                                     false).build();
@@ -868,7 +867,6 @@ public abstract class NamespacesBase extends AdminResource {
                     // Redirect
                     log.debug("Redirecting the rest call to {}", redirect);
                     throw new WebApplicationException(Response.temporaryRedirect(redirect).build());
-                    
                 } catch (MalformedURLException e) {
                     e.printStackTrace();
                 }
