@@ -1217,18 +1217,18 @@ public class ModularLoadManagerImpl implements ModularLoadManager {
     }
     
     @Override
-    public String getBundleBrokerAffinity(String bundle) {
+    public String getNamespaceBundleAffinity(String bundle) {
         return this.bundleBrokerAffinityMap.get(bundle);
     }
     
     @Override
-    public void setBundleBrokerAffinity(String bundle, String broker) {
+    public void setNamespaceBundleAffinity(String bundle, String broker) {
         broker = broker.replaceFirst("http[s]?://", "");
         this.bundleBrokerAffinityMap.put(bundle, broker);
     }
 
     @Override
-    public void removeBundleBrokerAffinity(String bundle) {
+    public void removeNamespaceBundleAffinity(String bundle) {
         this.bundleBrokerAffinityMap.remove(bundle);
     }
 }

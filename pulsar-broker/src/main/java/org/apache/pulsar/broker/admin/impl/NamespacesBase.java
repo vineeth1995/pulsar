@@ -873,7 +873,7 @@ public abstract class NamespacesBase extends AdminResource {
                     e.printStackTrace();
                 }
             }
-            pulsar().getLoadManager().get().setBundleBrokerAffinity(bundleRange, brokerUrl);
+            pulsar().getLoadManager().get().setNamespaceBundleAffinity(bundleRange, brokerUrl);
         }
     }
 

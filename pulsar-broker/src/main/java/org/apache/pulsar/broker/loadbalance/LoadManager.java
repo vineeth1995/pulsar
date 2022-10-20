@@ -27,7 +27,6 @@ import org.apache.pulsar.broker.PulsarService;
 import org.apache.pulsar.broker.ServiceConfiguration;
 import org.apache.pulsar.broker.loadbalance.impl.ModularLoadManagerWrapper;
 import org.apache.pulsar.broker.loadbalance.impl.SimpleLoadManagerImpl;
-import org.apache.pulsar.common.naming.NamespaceBundle;
 import org.apache.pulsar.common.naming.ServiceUnitId;
 import org.apache.pulsar.common.stats.Metrics;
 import org.apache.pulsar.common.util.Reflections;
@@ -120,11 +119,11 @@ public interface LoadManager {
 
     CompletableFuture<Set<String>> getAvailableBrokersAsync();
 
-    String getBundleBrokerAffinity(String bundle);
+    String getNamespaceBundleAffinity(String bundle);
 
-    void setBundleBrokerAffinity(String bundle, String broker);
+    void setNamespaceBundleAffinity(String bundle, String broker);
 
-    void removeBundleBrokerAffinity(String bundle);
+    void removeNamespaceBundleAffinity(String bundle);
 
     void stop() throws PulsarServerException;
 

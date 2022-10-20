@@ -290,7 +290,7 @@ public class ModularLoadManagerImplTest {
 
 
     
-    @Test(invocationCount = 2)
+    @Test
     public void testBrokerAffinity() throws Exception {
         // Start broker 3
         ServiceConfiguration config = new ServiceConfiguration();

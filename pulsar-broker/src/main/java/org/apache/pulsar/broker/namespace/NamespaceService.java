@@ -560,7 +560,7 @@ public class NamespaceService implements AutoCloseable {
                             LOG.debug("Namespace bundle {} is currently being unloaded", bundle);
                         }
                         lookupFuture.completeExceptionally(new IllegalStateException(
-                                format("Namespace bundle %s is currently being unloaded", bundle)));
+                                String.format("Namespace bundle %s is currently being unloaded", bundle)));
                     } else {
                         // Found owner for the namespace bundle
 
@@ -600,6 +600,7 @@ public class NamespaceService implements AutoCloseable {
 
             } else {
                 // Load managed decider some other broker should try to acquire ownership
+
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("Redirecting to broker {} to acquire ownership of bundle {}", candidateBroker, bundle);
                 }
@@ -703,7 +704,7 @@ public class NamespaceService implements AutoCloseable {
      */
     private Optional<Pair<String, String>> getLeastLoadedFromLoadManager(ServiceUnitId serviceUnit) throws Exception {
         Optional<ResourceUnit> leastLoadedBroker = loadManager.get().getLeastLoaded(serviceUnit);
-        if (!leastLoadedBroker.isPresent()) { 
+        if (!leastLoadedBroker.isPresent()) {
             LOG.warn("No broker is available for {}", serviceUnit);
             return Optional.empty();
         }
