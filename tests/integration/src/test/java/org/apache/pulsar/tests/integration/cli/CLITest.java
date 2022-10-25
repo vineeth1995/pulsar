@@ -250,7 +250,7 @@ public class CLITest extends PulsarTestSuite {
     @Test
     public void testTopicTerminationOnTopicsWithoutConnectedConsumers() throws Exception {
         String topicName = "persistent://public/default/test-topic-termination";
-        BrokerContarun_integration_groupiner container = pulsarCluster.getAnyBroker();
+        BrokerContainer container = pulsarCluster.getAnyBroker();
         container.execCmd(
                 PulsarCluster.ADMIN_SCRIPT,
                 "topics",
