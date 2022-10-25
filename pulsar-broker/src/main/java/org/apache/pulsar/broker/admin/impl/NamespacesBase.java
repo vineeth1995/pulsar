@@ -853,8 +853,8 @@ public abstract class NamespacesBase extends AdminResource {
         }
     }
 
-    public void setNamespaceBundleAffinity (String bundleRange, String brokerUrl) {
-        if (brokerUrl != null) {
+    public void setNamespaceBundleAffinity (String bundleRange, String destinationBroker) {
+        if (destinationBroker != null) {
             if (!this.isLeaderBroker()) {
                 LeaderBroker leaderBroker = pulsar().getLeaderElectionService().getCurrentLeader().get();
                 String leaderBrokerUrl = leaderBroker.getServiceUrl();
@@ -872,7 +872,7 @@ public abstract class NamespacesBase extends AdminResource {
                     throw new RestException(exception);
                 }
             }
-            pulsar().getLoadManager().get().setNamespaceBundleAffinity(bundleRange, brokerUrl);
+            pulsar().getLoadManager().get().setNamespaceBundleAffinity(bundleRange, destinationBroker);
         }
     }
 

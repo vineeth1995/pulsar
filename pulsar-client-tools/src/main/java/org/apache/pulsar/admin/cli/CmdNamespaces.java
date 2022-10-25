@@ -880,7 +880,7 @@ public class CmdNamespaces extends CmdBase {
         @Parameter(names = { "--bundle", "-b" }, description = "{start-boundary}_{end-boundary}")
         private String bundle;
 
-        @Parameter(names = { "--brokerUrl", "-u" },
+        @Parameter(names = { "--destinationBroker", "-d" },
                 description = "Target brokerWebServiceAddress to which the bundle has to be allocated to")
         private String broker;
 
