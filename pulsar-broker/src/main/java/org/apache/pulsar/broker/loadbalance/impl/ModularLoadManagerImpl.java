@@ -197,7 +197,7 @@ public class ModularLoadManagerImpl implements ModularLoadManager {
 
     private final Lock lock = new ReentrantLock();
     private Set<String> knownBrokers = ConcurrentHashMap.newKeySet();
-    private ConcurrentHashMap<String, String> bundleBrokerAffinityMap;
+    private Map<String, String> bundleBrokerAffinityMap;
 
     /**
      * Initializes fields which do not depend on PulsarService. initialize(PulsarService) should subsequently be called.
@@ -1227,7 +1227,7 @@ public class ModularLoadManagerImpl implements ModularLoadManager {
     }
 
     @Override
-    public void removeNamespaceBundleAffinity(String bundle) {
-        this.bundleBrokerAffinityMap.remove(bundle);
+    public String removeNamespaceBundleAffinity(String bundle) {
+        return this.bundleBrokerAffinityMap.remove(bundle);
     }
 }

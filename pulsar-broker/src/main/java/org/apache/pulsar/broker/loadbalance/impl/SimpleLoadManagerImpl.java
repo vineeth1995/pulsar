@@ -1446,12 +1446,7 @@ public class SimpleLoadManagerImpl implements LoadManager, Consumer<Notification
             this.setLoadReportForceUpdateFlag();
         }
     }
-
-    @Override
-    public String getNamespaceBundleAffinity(String bundle) {
-        return this.bundleBrokerAffinityMap.get(bundle);
-    }
-
+    
     @Override
     public void setNamespaceBundleAffinity(String bundle, String broker) {
         broker = broker.replaceFirst("http[s]?://", "");
@@ -1459,8 +1454,8 @@ public class SimpleLoadManagerImpl implements LoadManager, Consumer<Notification
     }
 
     @Override
-    public void removeNamespaceBundleAffinity(String bundle) {
-        this.bundleBrokerAffinityMap.remove(bundle);
+    public String removeNamespaceBundleAffinity(String bundle) {
+        return this.bundleBrokerAffinityMap.remove(bundle);
     }
 
     @Override

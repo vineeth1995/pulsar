@@ -865,10 +865,11 @@ public abstract class NamespacesBase extends AdminResource {
                                     false).build();
 
                     // Redirect
-                    log.debug("Redirecting the rest call to {}", redirect);
+                    log.debug("Redirecting the rest call to {}, bundleRange - {}", redirect, bundleRange);
                     throw new WebApplicationException(Response.temporaryRedirect(redirect).build());
-                } catch (MalformedURLException e) {
-                    e.printStackTrace();
+                } catch (MalformedURLException exception) {
+                    log.error("The leader broker url is malformed - {}", leaderBrokerUrl);
+                    throw new RestException(exception);
                 }
             }
             pulsar().getLoadManager().get().setNamespaceBundleAffinity(bundleRange, brokerUrl);

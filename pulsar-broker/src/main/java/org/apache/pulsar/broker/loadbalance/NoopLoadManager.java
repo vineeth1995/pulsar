@@ -146,18 +146,13 @@ public class NoopLoadManager implements LoadManager {
     }
 
     @Override
-    public String getNamespaceBundleAffinity(String bundle) {
-        return this.bundleBrokerAffinityMap.get(bundle);
-    }
-
-    @Override
     public void setNamespaceBundleAffinity(String bundle, String broker) {
         broker = broker.replaceFirst("http[s]?://", "");
         this.bundleBrokerAffinityMap.put(bundle, broker);
     }
 
     @Override
-    public void removeNamespaceBundleAffinity(String bundle) {
-        this.bundleBrokerAffinityMap.remove(bundle);
+    public String removeNamespaceBundleAffinity(String bundle) {
+        return this.bundleBrokerAffinityMap.remove(bundle);
     }
 }

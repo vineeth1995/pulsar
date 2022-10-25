@@ -66,9 +66,8 @@ public class ModularLoadManagerWrapper implements LoadManager {
     @Override
     public Optional<ResourceUnit> getLeastLoaded(final ServiceUnitId serviceUnit) {
         String bundleRange = LoadManagerShared.getBundleRangeFromBundleName(serviceUnit.toString());
-        String affinityBroker = loadManager.getNamespaceBundleAffinity(bundleRange);
+        String affinityBroker = loadManager.removeNamespaceBundleAffinity(bundleRange);
         if (affinityBroker != null) {
-            loadManager.removeNamespaceBundleAffinity(bundleRange);
             return Optional.of(buildBrokerResourceUnit(affinityBroker));
         }
         Optional<String> leastLoadedBroker = loadManager.selectBrokerForAssignment(serviceUnit);
@@ -156,17 +155,12 @@ public class ModularLoadManagerWrapper implements LoadManager {
     }
 
     @Override
-    public String getNamespaceBundleAffinity(String bundle) {
-        return loadManager.getNamespaceBundleAffinity(bundle);
-    }
-
-    @Override
     public void setNamespaceBundleAffinity(String bundle, String broker) {
         loadManager.setNamespaceBundleAffinity(bundle, broker);
     }
 
     @Override
-    public void removeNamespaceBundleAffinity(String bundle) {
-        loadManager.removeNamespaceBundleAffinity(bundle);
+    public String removeNamespaceBundleAffinity(String bundle) {
+        return loadManager.removeNamespaceBundleAffinity(bundle);
     }
 }
