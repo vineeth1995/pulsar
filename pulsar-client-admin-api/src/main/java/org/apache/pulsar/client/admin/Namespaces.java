@@ -2096,12 +2096,12 @@ public interface Namespaces {
      * @param namespace
      * @param bundle
      *           range of bundle to unload
-     * @param brokerUrl
+     * @param destinationBroker
      *           Target broker url to which the bundle should be assigned to
      * @throws PulsarAdminException
      *             Unexpected error
      */
-    void unloadNamespaceBundle(String namespace, String bundle, String brokerUrl) throws PulsarAdminException;
+    void unloadNamespaceBundle(String namespace, String bundle, String destinationBroker) throws PulsarAdminException;
 
 
     /**
@@ -2121,12 +2121,12 @@ public interface Namespaces {
      * @param namespace
      * @param bundle
      *           range of bundle to unload
-     * @param brokerUrl
+     * @param destinationBroker
      *           Target broker url to which the bundle should be assigned to
      *
      * @return a future that can be used to track when the bundle is unloaded
      */
-    CompletableFuture<Void> unloadNamespaceBundleAsync(String namespace, String bundle, String brokerUrl);
+    CompletableFuture<Void> unloadNamespaceBundleAsync(String namespace, String bundle, String destinationBroker);
 
     /**
      * Split namespace bundle.

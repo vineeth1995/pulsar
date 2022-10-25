@@ -815,8 +815,8 @@ public class NamespacesImpl extends BaseResource implements Namespaces {
     }
 
     @Override
-    public void unloadNamespaceBundle(String namespace, String bundle, String brokerUrl) throws PulsarAdminException {
-        sync(() -> unloadNamespaceBundleAsync(namespace, bundle, brokerUrl));
+    public void unloadNamespaceBundle(String namespace, String bundle, String destinationBroker) throws PulsarAdminException {
+        sync(() -> unloadNamespaceBundleAsync(namespace, bundle, destinationBroker));
     }
 
     @Override
@@ -827,9 +827,9 @@ public class NamespacesImpl extends BaseResource implements Namespaces {
     }
 
     @Override
-    public CompletableFuture<Void> unloadNamespaceBundleAsync(String namespace, String bundle, String brokerUrl) {
+    public CompletableFuture<Void> unloadNamespaceBundleAsync(String namespace, String bundle, String destinationBroker) {
         NamespaceName ns = NamespaceName.get(namespace);
-        WebTarget path = namespacePath(ns, bundle, "unload").queryParam("brokerUrl", brokerUrl);
+        WebTarget path = namespacePath(ns, bundle, "unload").queryParam("destinationBroker", destinationBroker);
         return asyncPutRequest(path, Entity.entity("", MediaType.APPLICATION_JSON));
     }
 
