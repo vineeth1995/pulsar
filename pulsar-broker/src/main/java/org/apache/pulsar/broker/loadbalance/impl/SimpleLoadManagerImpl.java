@@ -187,7 +187,7 @@ public class SimpleLoadManagerImpl implements LoadManager, Consumer<Notification
 
     private volatile Future<?> updateRankingHandle;
 
-    private ConcurrentHashMap<String, String> bundleBrokerAffinityMap;
+    private Map<String, String> bundleBrokerAffinityMap;
 
     // Perform initializations which may be done without a PulsarService.
     public SimpleLoadManagerImpl() {

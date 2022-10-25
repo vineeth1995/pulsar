@@ -20,6 +20,7 @@ package org.apache.pulsar.broker.loadbalance;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -44,7 +45,7 @@ public class NoopLoadManager implements LoadManager {
     private String lookupServiceAddress;
     private ResourceUnit localResourceUnit;
     private LockManager<LocalBrokerData> lockManager;
-    private ConcurrentHashMap<String, String> bundleBrokerAffinityMap;
+    private Map<String, String> bundleBrokerAffinityMap;
 
     @Override
     public void initialize(PulsarService pulsar) {
