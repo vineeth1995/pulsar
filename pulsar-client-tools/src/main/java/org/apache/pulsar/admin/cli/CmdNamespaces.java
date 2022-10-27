@@ -882,7 +882,7 @@ public class CmdNamespaces extends CmdBase {
 
         @Parameter(names = { "--destinationBroker", "-d" },
                 description = "Target brokerWebServiceAddress to which the bundle has to be allocated to")
-        private String broker;
+        private String destinationBroker;
 
         @Override
         void run() throws PulsarAdminException {
@@ -890,10 +890,10 @@ public class CmdNamespaces extends CmdBase {
             if (bundle == null) {
                 getAdmin().namespaces().unload(namespace);
             } else {
-                if (broker == null) {
+                if (destinationBroker == null) {
                     getAdmin().namespaces().unloadNamespaceBundle(namespace, bundle);
                 } else {
-                    getAdmin().namespaces().unloadNamespaceBundle(namespace, bundle, broker);
+                    getAdmin().namespaces().unloadNamespaceBundle(namespace, bundle, destinationBroker);
                 }
 
             }
