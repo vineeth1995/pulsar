@@ -105,6 +105,8 @@ public class ModularLoadManagerImplTest {
     private PulsarService pulsar2;
     private PulsarAdmin admin2;
 
+    private PulsarService pulsar3;
+
     private String primaryHost;
     private String secondaryHost;
 
@@ -184,6 +186,20 @@ public class ModularLoadManagerImplTest {
         pulsar2 = new PulsarService(config2);
         pulsar2.start();
 
+        ServiceConfiguration config = new ServiceConfiguration();
+        config.setLoadManagerClassName(ModularLoadManagerImpl.class.getName());
+        config.setLoadBalancerLoadSheddingStrategy("org.apache.pulsar.broker.loadbalance.impl.OverloadShedder");
+        config.setClusterName("use");
+        config.setWebServicePort(Optional.of(0));
+        config.setMetadataStoreUrl("zk:127.0.0.1:" + bkEnsemble.getZookeeperPort());
+        config.setAdvertisedAddress("localhost");
+        config.setBrokerShutdownTimeoutMs(0L);
+        config.setLoadBalancerOverrideBrokerNicSpeedGbps(Optional.of(1.0d));
+        config.setBrokerServicePort(Optional.of(0));
+        config.setBrokerServicePortTls(Optional.of(0));
+        config.setWebServicePortTls(Optional.of(0));
+        pulsar3 = new PulsarService(config);
+
         secondaryHost = String.format("%s:%d", "localhost", pulsar2.getListenPortHTTP().get());
         url2 = new URL(pulsar2.getWebServiceAddress());
         admin2 = PulsarAdmin.builder().serviceHttpUrl(url2.toString()).build();
@@ -204,6 +220,10 @@ public class ModularLoadManagerImplTest {
 
         pulsar2.close();
         pulsar1.close();
+        
+        if (pulsar3.isRunning()) {
+            pulsar3.close();
+        }
 
         bkEnsemble.stop();
     }
@@ -292,19 +312,6 @@ public class ModularLoadManagerImplTest {
     @Test
     public void testBrokerAffinity() throws Exception {
         // Start broker 3
-        ServiceConfiguration config = new ServiceConfiguration();
-        config.setLoadManagerClassName(ModularLoadManagerImpl.class.getName());
-        config.setLoadBalancerLoadSheddingStrategy("org.apache.pulsar.broker.loadbalance.impl.OverloadShedder");
-        config.setClusterName("use");
-        config.setWebServicePort(Optional.of(0));
-        config.setMetadataStoreUrl("zk:127.0.0.1:" + bkEnsemble.getZookeeperPort());
-        config.setAdvertisedAddress("localhost");
-        config.setBrokerShutdownTimeoutMs(0L);
-        config.setLoadBalancerOverrideBrokerNicSpeedGbps(Optional.of(1.0d));
-        config.setBrokerServicePort(Optional.of(0));
-        config.setBrokerServicePortTls(Optional.of(0));
-        config.setWebServicePortTls(Optional.of(0));
-        PulsarService pulsar3 = new PulsarService(config);
         pulsar3.start();
         
         final String tenant = "test";
@@ -321,6 +328,7 @@ public class ModularLoadManagerImplTest {
         
         String brokerServiceUrl = pulsar1.getBrokerServiceUrl();
         String brokerUrl = pulsar1.getSafeWebServiceAddress();
+        log.debug("initial broker service url - {}", topicLookup);
         Random rand=new Random();
         
         if (topicLookup.equals(brokerServiceUrl)) {
@@ -334,13 +342,21 @@ public class ModularLoadManagerImplTest {
                 brokerServiceUrl = pulsar3.getBrokerServiceUrl();
             }
         }
+        log.debug("destination broker service url - {}, broker url - {}", brokerServiceUrl, brokerUrl);
+        String leaderServiceUrl = admin1.brokers().getLeaderBroker().getServiceUrl();
+        log.debug("leader serviceUrl - {}, broker1 service url - {}", leaderServiceUrl, pulsar1.getSafeWebServiceAddress());
+        //Make a call to broker which is not a leader
+        if (!leaderServiceUrl.equals(pulsar1.getSafeWebServiceAddress())) {
+            admin1.namespaces().unloadNamespaceBundle(namespace, bundleRange, brokerUrl);
+        }
+        else {
+            admin2.namespaces().unloadNamespaceBundle(namespace, bundleRange, brokerUrl);
+        }
         
-        admin1.namespaces().unloadNamespaceBundle(namespace, bundleRange, brokerUrl);
-        
+        sleep(2000);
         String topicLookupAfterUnload = admin1.lookups().lookupTopic(topic);
-        
+        log.debug("final broker service url - {}", topicLookupAfterUnload);
         Assert.assertEquals(brokerServiceUrl, topicLookupAfterUnload);
-        pulsar3.close();
     }
 
     /**

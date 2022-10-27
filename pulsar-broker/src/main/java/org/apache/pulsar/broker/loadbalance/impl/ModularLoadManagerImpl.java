@@ -1215,7 +1215,7 @@ public class ModularLoadManagerImpl implements ModularLoadManager {
 
         return metricsCollection;
     }
-    
+
     @Override
     public void setNamespaceBundleAffinity(String bundle, String broker) {
         broker = broker.replaceFirst("http[s]?://", "");

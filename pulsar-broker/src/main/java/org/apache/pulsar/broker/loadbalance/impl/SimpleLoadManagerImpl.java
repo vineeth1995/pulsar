@@ -1446,7 +1446,7 @@ public class SimpleLoadManagerImpl implements LoadManager, Consumer<Notification
             this.setLoadReportForceUpdateFlag();
         }
     }
-    
+
     @Override
     public void setNamespaceBundleAffinity(String bundle, String broker) {
         broker = broker.replaceFirst("http[s]?://", "");

@@ -865,7 +865,7 @@ public abstract class NamespacesBase extends AdminResource {
                                     false).build();
 
                     // Redirect
-                    log.debug("Redirecting the rest call to {}, bundleRange - {}", redirect, bundleRange);
+                    log.debug("Redirecting the rest call to leader - {}, bundleRange - {}", redirect, bundleRange);
                     throw new WebApplicationException(Response.temporaryRedirect(redirect).build());
                 } catch (MalformedURLException exception) {
                     log.error("The leader broker url is malformed - {}", leaderBrokerUrl);
