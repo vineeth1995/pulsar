@@ -83,7 +83,7 @@ public class ReplicatorTopicPoliciesTest extends ReplicatorTestBase {
         // set BacklogQuota
         BacklogQuotaImpl backlogQuota = new BacklogQuotaImpl();
         backlogQuota.setLimitSize(1);
-        backlogQuota.setLimitTime(2);
+        backlogQuota.setLimitTimeInSec(2);
         // local
         admin1.topicPolicies().setBacklogQuota(topic, backlogQuota);
         Awaitility.await().untilAsserted(() ->
@@ -703,7 +703,7 @@ public class ReplicatorTopicPoliciesTest extends ReplicatorTestBase {
         init(namespace, persistentTopicName);
         OffloadPoliciesImpl offloadPolicies =
                 OffloadPoliciesImpl.create("s3", "region", "bucket", "endpoint", null, null, null, null,
-                8, 9, 10L, null, OffloadedReadPriority.BOOKKEEPER_FIRST);
+                8, 9, 10L, 10L, null, OffloadedReadPriority.BOOKKEEPER_FIRST);
         // local
         try {
             admin1.topicPolicies().setOffloadPolicies(persistentTopicName, offloadPolicies);
