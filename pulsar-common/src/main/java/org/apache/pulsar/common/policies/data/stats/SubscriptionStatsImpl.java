@@ -38,7 +38,6 @@ public class SubscriptionStatsImpl implements SubscriptionStats {
     /** Total throughput delivered on this subscription (bytes/s). */
     public double msgThroughputOut;
 
-
     /** Total bytes delivered to consumer (bytes). */
     public long bytesOutCounter;
 
