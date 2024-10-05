@@ -134,7 +134,12 @@ public class MLPendingAckStoreProvider implements TransactionPendingAckStoreProv
                                                                         .getConfiguration()
                                                                         .getTransactionPendingAckLogIndexMinLag(),
                                                                 txnLogBufferedWriterConfig,
-                                                                brokerClientSharedTimer, bufferedWriterMetrics));
+                                                                brokerClientSharedTimer, bufferedWriterMetrics,
+                                                                originPersistentTopic
+                                                                        .getBrokerService()
+                                                                        .getPulsar()
+                                                                        .getOrderedExecutor()
+                                                                        .chooseThread()));
                                                         if (log.isDebugEnabled()) {
                                                             log.debug("{},{} open MLPendingAckStore cursor success",
                                                                     originPersistentTopic.getName(),
@@ -159,7 +164,7 @@ public class MLPendingAckStoreProvider implements TransactionPendingAckStoreProv
                                                 , originPersistentTopic.getName(), subscription.getName(), exception);
                                         pendingAckStoreFuture.completeExceptionally(exception);
                                     }
-                                }, () -> true, null);
+                                }, () -> CompletableFuture.completedFuture(true), null);
                     }).exceptionally(e -> {
                         Throwable t = FutureUtil.unwrapCompletionException(e);
                         log.error("[{}] [{}] Failed to get managedLedger config when init pending ack store!",

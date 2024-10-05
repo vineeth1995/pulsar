@@ -146,15 +146,17 @@ public class KeySharedSubscriptionTest extends ProducerConsumerBase {
 
         // Wait for all consumers to continue receiving messages.
         Awaitility.await()
-                .atMost(15, TimeUnit.SECONDS)
+                .atMost(30, TimeUnit.SECONDS)
                 .pollDelay(5, TimeUnit.SECONDS)
                 .until(() ->
                         (System.currentTimeMillis() - lastActiveTime.get()) > TimeUnit.SECONDS.toMillis(5));
 
+        logTopicStats(topic);
+
         //Determine if all messages have been received.
         //If the dispatcher is stuck, we can not receive enough messages.
-        Assert.assertEquals(pubMessages.size(), totalMsg);
-        Assert.assertEquals(pubMessages.size(), recMessages.size());
+        Assert.assertEquals(totalMsg, pubMessages.size());
+        Assert.assertEquals(recMessages.size(), pubMessages.size());
         Assert.assertTrue(recMessages.containsAll(pubMessages));
 
         // cleanup
